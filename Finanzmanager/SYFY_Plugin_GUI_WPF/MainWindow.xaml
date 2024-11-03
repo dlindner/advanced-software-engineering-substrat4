@@ -1,0 +1,251 @@
+﻿<Window x:Class="SYFY_Plugin_GUI_WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SYFY_Plugin_GUI_WPF"
+        xmlns:converters="clr-namespace:SYFY_Plugin_GUI_WPF.Converters"
+        mc:Ignorable="d"
+        Title="SYFY" Height="573" Width="1000" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+    <Window.Resources>
+        <converters:AmountToStringConverter x:Key="AmountToStringConverter"/>
+        <converters:DateToStringConverter x:Key="DateToStringConverter"/>
+    </Window.Resources>
+    <Grid Margin="0,50,0,0">
+        <TabControl x:Name="tabControl" Margin="0,42,0,0" Grid.ColumnSpan="2">
+            <TabItem Header="Transactions">
+                <Grid x:Name="GRD_TabTransactions" Background="#FFE5E5E5" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition x:Name="RW_TransactionsFilter"  Height="*" MinHeight="40"></RowDefinition>
+                        <RowDefinition Height="20*"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <Grid x:Name="GRD_FilterTransactions" Grid.Row="1" Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ToggleButton x:Name="BTN_ExpandFilterTransactions" Width="80" Content="Expand Filter" Grid.Row="0" 
+                                Click="BTN_ExpandFilterTransactions_Click" 
+                                HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    </Grid>
+                    
+                    <DataGrid x:Name="dg_Transactions" AutoGenerateColumns="False" ItemsSource="{Binding bankingTransactions}" 
+                              CanUserAddRows="False" CanUserDeleteRows="False"
+                              Grid.Row="2" Grid.Column="0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn x:Name="dgCol_Trans_TransactionDate" 
+                                                Binding="{Binding TransactionDate, Converter={StaticResource DateToStringConverter}}" 
+                                                Header="Transaction Date"/>
+                            <DataGridTextColumn x:Name="dgCol_Trans_Amount"                                                 
+                                                Binding="{Binding Path=Amount, Converter={StaticResource AmountToStringConverter}}" 
+                                                Header="Amount"/>
+                            <DataGridTemplateColumn Header="Bank Account From" x:Name="dgCol_Trans_FromBankAccountCB">
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox x:Name="cb_FromBankAccounts_Editing"
+                                            ItemsSource="{Binding Path=DataContext.bankAccounts, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                            DisplayMemberPath="Name"
+                                            SelectedValuePath="Guid"
+                                            SelectedValue="{Binding FromBankAccount }"
+                                            />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Bank Account To" x:Name="dgCol_Trans_ToBankAccountCB">
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox x:Name="cb_ToBankAccounts_Editing"
+                                            ItemsSource="{Binding Path=DataContext.bankAccounts, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                            DisplayMemberPath="Name"
+                                            SelectedValuePath="Guid"
+                                            SelectedValue="{Binding ToBankAccount }"
+                                            />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn x:Name="dgCol_Trans_Comment"                                                 
+                                                Binding="{Binding Path=Comment}" 
+                                                Header="Comment"/>
+                            <DataGridTextColumn x:Name="dgCol_Trans_PostingDate"                                                 
+                                                Binding="{Binding Path=PostingDate, Converter={StaticResource DateToStringConverter}}" 
+                                                Header="Posting Date"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Grid Grid.Row="0" Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Name="BTN_NewTransaction" Content="New Transaction" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top"
+                            Click="BTN_NewTransaction_Click"
+                            Grid.Row="0" Grid.Column="0"/>
+                        <Button x:Name="BTN_SaveChangesTransactions" Content="Save Changes" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top"
+                            Click="BTN_SaveChanges_Click"
+                            Grid.Row="0" Grid.Column="1"/>                        
+                        <Button x:Name="BTN_DiscardChangesTransactions" Content="Discard Changes" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top"
+                            Click="BTN_DiscardChanges_Click"
+                            Grid.Row="0" Grid.Column="2"/>
+                        <Button x:Name="BTN_DeleteTransaction" Content="Delete Transaction" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top"
+                            Click="BTN_DeleteTransaction_Click"
+                            Grid.Row="0" Grid.Column="3"/>
+                    </Grid>
+                    <Grid x:Name="Grid_Transactions_TransactionTagsSelection" Grid.Row="2" Grid.Column="1" Visibility="Hidden">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="25"/>
+                            <RowDefinition Height="100"/>
+                        </Grid.RowDefinitions>
+
+                        <DataGrid x:Name="dg_Transactions_AlignedTransactionTags" AutoGenerateColumns="False" ItemsSource="{Binding currentTransactionTags}"
+                              CanUserAddRows="False" CanUserDeleteRows="False" 
+                              Grid.Row="1" Margin="0,0,0,0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                                <DataGridTextColumn Header="Comment" Binding="{Binding Comment}"/>
+                                <DataGridCheckBoxColumn x:Name="dg_Transactions_AlignedTransactionTags_SelectedCol" Header="Selected" Visibility="Hidden"/>
+                            </DataGrid.Columns>
+
+                        </DataGrid>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button x:Name="BTN_AddTagToTransaction" Content="Add Tag" 
+                            HorizontalAlignment="Center" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center" 
+                            Width="90" Click="BTN_AddTagToTransaction_Click"/>
+                            <Button x:Name="BTN_RemoveTagFromTransaction" Content="Remove Tag"
+                                    Grid.Column="1" VerticalAlignment="Center"
+                                    HorizontalAlignment="Center" Width="90" Click="BTN_RemoveTagFromTransaction_Click"/>
+                        </Grid>
+                        <TextBlock Text="Available Transaction Tags" Grid.Row="2"/>
+                        <DataGrid x:Name="dg_AvailableTags" Grid.Row="3" 
+                                  ItemsSource="{Binding Path=DataContext.currentlyAvailableTransactionTags, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                    AutoGenerateColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                                <DataGridTextColumn Header="Comment" Binding="{Binding Comment}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                         </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Bank Accounts">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <DataGrid Grid.Row="1" Grid.Column="0"
+                        x:Name="dg_BankAccounts" AutoGenerateColumns="False" ItemsSource="{Binding bankAccounts}" 
+                              CanUserAddRows="False" CanUserDeleteRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn x:Name="dgCol_BA_Name" Binding="{Binding Name}" Header="Name"/>
+                            <DataGridTextColumn x:Name="dgCol_BA_Amount"                                                 
+                                                Binding="{Binding Path=Amount, Converter={StaticResource AmountToStringConverter}}" 
+                                                Header="Amount"/>
+                            <DataGridTextColumn x:Name="dgCol_BA_Comment"                                                 
+                                                Binding="{Binding Path=Comment}" 
+                                                Header="Comment"/>
+                            <DataGridTextColumn x:Name="dgCol_BA_Iban"                                                 
+                                                Binding="{Binding Path=Iban}" 
+                                                Header="Number (Iban)"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Grid Grid.Row="0" Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Name="BTN_NewBankAccout" Content="Add Bank Account" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.227,-0.447" 
+                            Click="BTN_NewBankAccount_Click"
+                                Grid.Column="0"/>
+                        <Button x:Name="BTN_SaveChangesBankAccounts" Content="Save Changes" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top"
+                            Click="BTN_SaveChanges_Click"
+                                Grid.Column="1"/>
+                        <Button x:Name="BTN_DiscardChangesBankAccounts" Content="Discard Changes" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top"
+                            Click="BTN_DiscardChanges_Click"
+                                Grid.Column="2"/>
+                        <Button x:Name="BTN_DeleteBankAccount" Content="Delete Bank Account" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top"
+                            Click="BTN_DeleteBankAccount_Click"
+                                Grid.Column="3"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Transaction Tags">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <DataGrid x:Name="dg_TransactionTags" AutoGenerateColumns="False" ItemsSource="{Binding transactionTags}"
+                              Grid.Column="0" Grid.Row="1">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn x:Name="dgCol_Tag_Name" Binding="{Binding Name}" Header="Name"/>
+                            <DataGridTextColumn x:Name="dgCol_Tag_Comment"                                                 
+                                                Binding="{Binding Comment}" 
+                                                Header="Comment"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="0" Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Name="BTN_NewTag" Content="Add Tag" 
+                            HorizontalAlignment="Left" Margin="0, 15,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.227,-0.447" 
+                            Click="BTN_NewTag_Click"
+                                Grid.Column="0"/>
+                        <Button x:Name="BTN_SaveChangesTags" Content="Save Changes" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top"
+                            Click="BTN_SaveChanges_Click"
+                                Grid.Column="1"/>
+                        <Button x:Name="BTN_DiscardChangesTags" Content="Discard Changes" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top"
+                            Click="BTN_DiscardChanges_Click"
+                                Grid.Column="2"/>
+                        <Button x:Name="BTN_DeleteTag" Content="Delete Tag" 
+                            HorizontalAlignment="Left" Margin="0,15,0,0" VerticalAlignment="Top"
+                            Click="BTN_DeleteTag_Click"
+                                Grid.Column="3"/>
+                    </Grid>
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
